@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2C80B8CA-AA29-4F20-9225-FB77C46F9D32}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>AdamMil.WebDAV.Server</RootNamespace>
+    <AssemblyName>AdamMil.WebDAV.Server</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\AdamMil.WebDAV.Server.xml</DocumentationFile>
+    <CodeAnalysisRuleSet>..\..\Analysis.ruleset</CodeAnalysisRuleSet>
+    <BaseAddress>28311552</BaseAddress>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>..\..\Analysis.ruleset</CodeAnalysisRuleSet>
+    <BaseAddress>28311552</BaseAddress>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>FriedProjectKeySign.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Common\BinaryUtility.cs" />
+    <Compile Include="Common\GuidUtility.cs" />
+    <Compile Include="Common\Impersonation.cs" />
+    <Compile Include="Common\Interop.cs" />
+    <Compile Include="Common\InvariantCulture.cs" />
+    <Compile Include="Common\LockManager.cs" />
+    <Compile Include="Common\PropertyStore.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Helpers\ArrayIO.cs" />
+    <Compile Include="Helpers\Arrays.cs" />
+    <Compile Include="Helpers\BaseConfiguration.cs" />
+    <Compile Include="Helpers\BaseDictionaries.cs" />
+    <Compile Include="Helpers\BinaryEncoding.cs" />
+    <Compile Include="Helpers\BinaryReaderWriter.cs" />
+    <Compile Include="Helpers\Caching.cs" />
+    <Compile Include="Helpers\Comparisons.cs" />
+    <Compile Include="Helpers\DateUtility.cs" />
+    <Compile Include="Helpers\EightBitEncoding.cs" />
+    <Compile Include="Helpers\Extensions.cs" />
+    <Compile Include="Helpers\Interfaces.cs" />
+    <Compile Include="Helpers\Linq.cs" />
+    <Compile Include="Helpers\MediaTypes.cs" />
+    <Compile Include="Helpers\PathUtility.cs" />
+    <Compile Include="Helpers\Streams.cs" />
+    <Compile Include="Helpers\StringUtility.cs" />
+    <Compile Include="Helpers\TextEncoding.cs" />
+    <Compile Include="Helpers\Utility.cs" />
+    <Compile Include="Helpers\WebConfiguration.cs" />
+    <Compile Include="Helpers\Wrappers.cs" />
+    <Compile Include="Helpers\XmlUtility.cs" />
+    <Compile Include="Methods\Base64.cs" />
+    <Compile Include="Methods\BaseLists.cs" />
+    <Compile Include="Methods\BaseSets.cs" />
+    <Compile Include="Methods\CircularList.cs" />
+    <Compile Include="Methods\CopyOrMove.cs" />
+    <Compile Include="Methods\Delete.cs" />
+    <Compile Include="Methods\Exceptions.cs" />
+    <Compile Include="Methods\GetOrHead.cs" />
+    <Compile Include="Methods\Lock.cs" />
+    <Compile Include="Methods\MkCol.cs" />
+    <Compile Include="Methods\Options.cs" />
+    <Compile Include="Methods\Post.cs" />
+    <Compile Include="Methods\PropPatch.cs" />
+    <Compile Include="Methods\Put.cs" />
+    <Compile Include="Methods\Unlock.cs" />
+    <Compile Include="Services\Authorization.cs" />
+    <Compile Include="Common\ConditionCodes.cs" />
+    <Compile Include="Common\Configuration.cs" />
+    <Compile Include="Common\Context.cs" />
+    <Compile Include="Common\Exceptions.cs" />
+    <Compile Include="HttpModule.cs" />
+    <Compile Include="Methods\Common.cs" />
+    <Compile Include="Methods\PropFind.cs" />
+    <Compile Include="Common\Miscellaneous.cs" />
+    <Compile Include="Services\FileSystemService.cs" />
+    <Compile Include="Services\Resource.cs" />
+    <Compile Include="Services\Service.cs" />
+    <Compile Include="Common\Xml.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="FriedProjectKeySign.snk" />
+    <None Include="Resources\Web.config.minimal">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Web.config.sample">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

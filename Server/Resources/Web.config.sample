@@ -1,0 +1,316 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- This is a sample configuration file, parts of which can be merged into a web application's configuration file to configure it for use
+     with AdamMil.WebDAV.Server. Note that if you compile the server yourself or receive a binary from a third party, you may need to
+     change the public key tokens to match the public key used to compile the binary, if any.
+     
+     WARNING: Don't use this file blindly to set up a WebDAV site! It contains example settings that change the defaults in ways you don't
+     want. The purpose of this file is to provide examples and documentation to help you create your own web.config file. Please read this
+     file and make intelligent decisions as to which settings to keep and which to change or omit. In general, optional elements and
+     attributes that override the defaults should be omitted unless you really need them; they are included here for exemplary purposes
+     only.
+-->
+<configuration>
+  <!-- Declare our configuration sections so .NET knows how to parse them. -->
+  <configSections>
+    <section name="AdamMil.Web" type="AdamMil.Web.Configuration.WebSection, AdamMil.Web, Version=1.0.0.0, Culture=neutral, PublicKeyToken=fc73e8d20ddf3c62" />
+    <sectionGroup name="AdamMil.WebDAV">
+      <section name="server" type="AdamMil.WebDAV.Server.Configuration.WebDAVServerSection, AdamMil.WebDAV.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=fc73e8d20ddf3c62" />
+    </sectionGroup>
+  </configSections>
+
+  <system.web>
+    <!-- You may want to increase the maximum request size to allow uploading large files, since the default is 4MB. This sets it to 100MB,
+         but you must also change the system.webServer/security/requestFiltering element below. This element also increases the request
+         timeout from the default of 110 seconds to one hour (3600 seconds), to allow for uploads over slow connections.
+    -->
+    <httpRuntime executionTimeout="3600" maxRequestLength="102400" /> <!-- the length is in kilobytes -->
+  </system.web>
+
+  <system.webServer>
+    <!-- It's required to add the AdamMil.WebDAV module to process the requests. If you're using the Classic pipeline, you would add it to
+         system.web/httpModules instead.
+    -->
+    <modules>
+      <add name="AdamMil.WebDAV" type="AdamMil.WebDAV.Server.WebDAVModule, AdamMil.WebDAV.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=fc73e8d20ddf3c62" />
+    </modules>
+    <!-- You may want to increase the maximum content length to allow uploading large files, since the default is 30MB (limited further by
+         the maximum request length, above). This sets it to 100MB, but you must also change the system.web/httpRuntime element above.
+         In some cases (for instance, if you host the site using IIS Express), you may need to modify the applicationhost.config file to
+         allow the request limits to be overridden. If IIS returns a zero-byte 500 Internal Server Error response, this may be the culprit.
+         Try removing the <security> element to confirm.
+    -->
+    <security>
+      <requestFiltering>
+        <requestLimits maxAllowedContentLength="104857600" /> <!-- the length is in bytes -->
+      </requestFiltering>
+    </security>
+  </system.webServer>
+
+  <!-- The AdamMil.Web element is optional. If defined, it allows you to customize the media type extension and compression mappings. -->
+  <AdamMil.Web>
+    <!-- The optional 'mediaTypeMap' element configures the mapping between file extensions and media types used by the WebDAV server.
+          If the element is omitted, a default mapping will be used. This element should generally be omitted. The element has these
+          attributes:
+          * defaultFile - This attribute specifies where the default map entries will be loaded from. If omitted, an internal default
+                          mapping will be used - the same mapping that would be used if the entire 'mediaTypeMap' element was omitted. For
+                          the format of the default mapping file, see Documentation/MediaTypes.xml and Documentation/MediaTypes.xsd in the
+                          WebDAV server distribution.
+          * defaultExtension - This attribute specifies the file extension that the server will use when generating a file name for a
+                               resource with an unknown media type. If omitted, the default from 'defaultFile' will be used, which is
+                               normally to not use any file extension.
+          * defaultMediaType - This attribute specifies the media type to use if no media type matches a particular file extension. If
+                               omitted, the default from 'defaultFile' will be used, which is normally to report no media type at all.
+          Within the 'mediaTypeMap' element, the standard <add>, <clear/>, and <remove/> tags can be used to modify the mapping.
+    -->
+    <mediaTypeMap defaultFile="D:\data\mediaTypeMap.xml" defaultExtension="bin" defaultMediaType="application/octet-stream">
+      <!-- Each media type map entry has the following attributes:
+            * mediaType - The media type, which is the HTTP media-type (without parameters), such as text/css. This attribute is required.
+            * extension - The file extension, without any leading period. The extension may contain periods within it, such as dll.config,
+                          which matches *.dll.config. This attribute is required.
+            * canonicalExtension - Boolean. Whether the extension is the canonical extension for the media type. If true, the media type
+                                   will map to the given file extension, and if false, it will only map to the given file extension if
+                                   this is the only extension specified for the media type. This affects the server's attempts to choose a
+                                   default file extension for a file with the given media type. The default is false.
+            * canonicalMediaType - Boolean. Whether the media type is the canonical media type for the file extension. If true, file names
+                                   ending with the extension will map to the media type. If false, they will not. The default is true.
+            For a <remove> element, only one of 'mediaType' or 'extension' is required, but both can be used. If only one is specified,
+            the other will be considered to be a wildcard.
+      -->
+      <!-- <clear/> --> <!-- clear out the default mappings -->
+      <remove mediaType="text/plain" /> <!-- remove all mappings for text/plain -->
+      <remove extension="pdf" />        <!-- remove all mappings for the .pdf extension -->
+      <remove mediaType="audio/aiff" extension="aif" /> <!-- remove the specific mapping between audio/aiff and .aif -->
+      <add mediaType="text/foobar" extension="tfb" canonicalExtension="true" />
+      <add mediaType="text/foobar" extension="xtfb" />
+      <add mediaType="text/baz" extension="baz" />
+    </mediaTypeMap>
+    <!-- The optional 'compression' element configures which media types will be compressed by default. If the element is omitted, a
+          default mapping will be used. In general, this element should be omitted. The element has these attributes:
+          * defaultFile - This attribute specifies where the default map entries will be loaded from. If omitted, an internal default
+                          mapping will be used - the same mapping that would be used if the entire 'compression' element was omitted. For
+                          the format of the default mapping file, see Documentation/Compression.xml and Documentation/Compression.xsd in
+                          the WebDAV server distribution.
+    -->
+    <compression defaultFile="D:\data\compressionMap.xml">
+      <!-- Each compression mapping element has the following attributes:
+            * mediaType - The media type pattern the mapping applies to. Asterisks indicate wildcards (such as "text/*" or "*"). Wildcards
+                          in <remove> tags do not allow removing multiple entries. Rather, a <remove> tag can remove at most one entry -
+                          the one whose mediaType attribute matches exactly.
+            * compress - Specifies whether resources with the given media type should be compressed. The default is true.
+            Elements will be matched in the order given. If a media type does not match any element, it will not be compressed by default.
+      -->
+      <clear/>
+      <!-- <remove mediaType="application/*" /> --> <!-- this only removes the application/* mapping, not application/xml, etc. -->
+      <add mediaType="text/*" />
+      <add mediaType="application/xml" />
+      <add mediaType="application/*+xml" />
+      <add mediaType="application/*+json" />
+      <!-- compress foo/* except for foo/bar -->
+      <add mediaType="foo/bar" compress="false" />
+      <add mediaType="foo/*" compress="true" />
+    </compression>
+  </AdamMil.Web>
+
+  <AdamMil.WebDAV>
+    <!-- * The 'enabled' property is optional and true by default. If false, all AdamMil.WebDAV services are disabled.
+         * The 'showSensitiveErrors' property is optional and false by default. If true, additional error information may be included with
+           responses. This information can help you troubleshoot problems with a WebDAV service but it's possible that in certain cases the
+           messages could contain sensitive information. As such, it's best enabled in testing environments and disabled elsewhere.
+    -->
+    <server enabled="true" showSensitiveErrors="false">
+      <!-- The 'davLockManager' element configures the default lock manager used for the WebDAV server. (It is possible to override the
+           default using the 'davLockManager' child element of a location.) It should have a 'type' attribute set to the full type name of
+           a class that implements the AdamMil.WebDAV.Server.ILockManager interface. The class must have a public constructor with one of
+           the following signatures:
+             .ctor(string locationId)
+             .ctor(string locationId, AdamMil.WebDAV.Server.Configuration.ParameterCollection parameters)
+           The locationId is a case-insensitive string that uniquely identifies a location. (See below.) This ID should be used as a kind
+           of namespace to disambiguate resources that have the same path. (For instance, http://name1/file and http://name2/file both
+           have a path of /file, but they might have different location IDs.) The parameters collection allows additional configuration
+           attributes to be processed by the lock manager. If the element is omitted, no default lock manager will be available, disabling
+           locking for locations that don't specify their own lock manager. These are the built-in lock managers:
+           * AdamMil.WebDAV.Server.DisableLockManager - A lock manager that indicates to the WebDAV server that it should disable locking.
+                                                        This serves no purpose as a server-wide default, but may be useful below when
+                                                        configuring individual locations to override the server-wide default.
+           * AdamMil.WebDAV.Server.FileLockManager - A lock manager that stores the locks in a file on disk. It has these parameters:
+             o lockDir       - The path to a directory in which the locks will be saved. This is primarily suitable for lock managers
+                               specified on a global (server-wide) level. Files will be created in the directory with names based on the
+                               location. The directory must exist.
+             o lockFile      - The path to the file in which the locks will be saved. This is only suitable for lock managers specified
+                               on a per-location basis. If specified, this overrides the 'lockDir' attribute.
+             o revertToSelf  - Boolean. Determines whether the lock manager will revert to the process identity before opening the file on
+                               disk. This allows the file to be opened with the IIS process account, which is usually more privileged.
+                               The default is true.
+             o writeInterval - Positive integer. The frequency with which pending changes are written to disk. The default is 60 and the
+                               maximum is 2147483. Smaller values reduce both performance and the chance of lock data being lost if the
+                               server process is apruptly terminated.
+           * AdamMil.WebDAV.Server.MemoryLockManager - A lock manager that holds locks in memory while the service is running but does not
+                                                       persist them to any permanent storage device.
+           In addition to the manager-specific parameters mentioned above, all built-in lock managers support the following parameters:
+           * defaultTimeout     - Nonnegative integer. The default lock timeout, in seconds, used when the client does not request a
+                                  specific timeout. A value of zero means that locks do not time out by default. The default is zero.
+           * maximumLocks       - Nonnegative integer. The maximum number of locks that can be active in a service at any one time. A value
+                                  of zero indicates that there is no limit. The default is zero.
+           * maximumLocksPerUrl - Nonnegative integer. The maximum number of locks that can be active on a single URL. A value of zero
+                                  indicates that there is no limit. The default is zero.
+           * maximumTimeout     - Nonnegative integer. The maximum lock timeout, in seconds. A value of zero indicates that there is no
+                                  maximum. The default is zero.
+           Note that Microsoft WebDAV clients have bugs that cause them to malfunction when writing if the server doesn't support locking,
+           so even if you don't care about locking support you may need to enable it (with a MemoryLockManager at least) if you want to
+           support write access with Microsoft WebDAV clients. It is not required for read-only access.
+      -->
+      <davLockManager type="AdamMil.WebDAV.Server.FileLockManager, AdamMil.WebDAV.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=fc73e8d20ddf3c62"
+                      lockDir="D:\data\webdav\locks\" maximumLocksPerUrl="10" maximumTimeout="1209600" writeInterval="300" />
+      <!-- The 'propertyStore' element configures the default property store for the WebDAV server. (It is possible to override the default
+           using the 'propertyStore' child element of a location.) The class must have a public constructor with one of the following
+           signatures:
+             .ctor(string locationId)
+             .ctor(string locationId, AdamMil.WebDAV.Server.Configuration.ParameterCollection parameters)
+           The locationId is a case-insensitive string that uniquely identifies a location. (See below.) This ID should be used as a kind
+           of namespace to disambiguate resources that have the same path. (For instance, http://name1/file and http://name2/file both
+           have a path of /file, but they might have different location IDs.) The parameters collection allows additional configuration
+           attributes to be processed by the property store. If the element is omitted, no default property store will be available,
+           disabling dead properties on services and locations that don't specify their own property store. These are the built-in property
+           stores:
+           * AdamMil.WebDAV.Server.DisablePropertyStore - A property store that indicates to the WebDAV server that it should disable
+                                                          setting dead properties. This serves no purpose as a server-wide default, but may
+                                                          be useful below when configuring individual locations to override the server-wide
+                                                          default.
+           * AdamMil.WebDAV.Server.FilePropertyStore - A property store that stores properties in a file on disk. It has these parameters:
+             o propertyDir   - The path to a directory in which dead properties will be saved. This is primarily suitable for property
+                               stores specified on a global (server-wide) level. Files will be created in the directory with names based on
+                               the location. The directory must exist.
+             o propertyFile  - The path to the file in which the dead properties will be saved. This is only suitable for property stores
+                               specified on a per-location basis. If specified, this overrides the 'propertyDir' attribute.
+             o revertToSelf  - Boolean. Determines whether the property store will revert to the process identity before opening the file
+                               on disk. This allows the file to be opened with the IIS process account, which is usually more privileged.
+                               The default is true.
+             o writeInterval - Positive integer. The frequency with which pending changes are written to disk. The default is 60 and the
+                               maximum is 2147483. Smaller values reduce both performance and the chance of property data being lost if the
+                               server process is apruptly terminated.
+           * AdamMil.WebDAV.Server.MemoryPropertyStore - A property store that stores properties in memory while the service is running
+                                                         but does not persist them to any permanent storage device.
+           Note that Microsoft WebDAV clients have non-optimal behavior when writing if the server doesn't support dead properties,
+           although they will still work without them, so even if you don't care about dead properties you may want to enable them (with a
+           MemoryPropertyStore at least) if you want the best support for write access with Microsoft WebDAV clients.
+      -->
+      <propertyStore type="AdamMil.WebDAV.Server.FilePropertyStore, AdamMil.WebDAV.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=fc73e8d20ddf3c62"
+                     propertyDir="D:\data\webdav\props\" writeInterval="300" />
+      <!-- The 'locations' collection defines the roots of WebDAV services within the URL space. -->
+      <locations>
+        <!-- A location is used to match request URIs against different WebDAV services. Multiple locations can match the same URI;
+             the first matching location is used, even if the location is disabled. If the first matching location is disabled or no
+             location matches a request URI, the request is ignored by the AdamMil.WebDAV service. This allows you to carve out a subtree from
+             a WebDAV service that is excluded from WebDAV processing by adding a disabled location matching that subtree. Locations have
+             the following attributes, all of which are optional except for 'match':
+             * match     A string matching the request URI, of the form [[scheme://]hostname[:port]][/path/to/davroot/]
+                         If the scheme portion is unspecified, the location matches any scheme. If a hostname is used, it must match the
+                         host within the request URI. Unfortunately, it is not possible to match by IP address due to a limitation of
+                         ASP.NET. If the port is unspecified, the location matches any port, even if the scheme normally implies a port.
+                         If the entire authority portion is unspecified, the location matches any authority. If the path is specified, it
+                         identifies the root of a WebDAV service, and all URIs under that path are matched by the location; otherwise, it
+                         matches all paths. The URI must be in its canonical form, with no unnecessarily escaped characters. (I.e. only
+                         characters reserved within paths according to RFC 3986 should be escaped.) The match attribute is required, and
+                         must be unique among locations in the collection. Examples:
+                           https://www.example.com:8080/webdav/  - matches HTTPS requests to www.example.com on port 8080 under /webdav/
+                           http://www.example.com/webdav/        - matches HTTP requests to www.example.com on any port under /webdav/
+                           www.example.com:8080/webdav/          - matches both HTTP and HTTPS requests on port 8080
+                           www.example.com/webdav/               - matches both HTTP and HTTPS requests to any port
+                           /webdav/                              - matches requests on any hostname, as long as the path is under /webdav/
+                           www.example.com                       - matches all requests to www.example.com
+                           /                                     - matches all requests
+             * enabled   If true (the default), the location will respond to WebDAV requests. If false, the location will ignore them, but
+                         they will not be processed by other locations in the list.
+             * type      The full type name of a class that implements the AdamMil.WebDAV.Server.IWebDAVService interface. The class must
+                         either have a public default constructor or a constructor that accepts an
+                         AdamMil.WebDAV.Server.Configuration.ParameterCollection (allowing additional configuration attributes to be processed
+                         by the service). This attribute is required for enabled locations.
+             * id        A case-insensitive string that uniquely identifies this location. If omitted, the ID will be created based on the
+                         'match' attribute. This is normally fine, but if two 'match' attributes differ only by case it may be necessary to
+                         disambiguate their IDs. You may also want to set an ID if you expect the match attribute to change in the future,
+                         because stored locks and dead properties are usually associated with the ID (when using a global lock manager or
+                         property store) and may be lost if the ID changes.
+             * caseSensitive      If true, URI path matches (but not hostname matches) will be done case-sensitively. If false, case will
+                                  be ignored. The default is false. Note that this only affects the matching of the URI against the 'match'
+                                  attribute. It does not necessarily affect how the service handles paths within its namespace, but
+                                  services should consult this parameter if appropriate. (For example, the built-in FileSystemService
+                                  examines this attribute, since there exist both case-sensitive and case-insensitive file systems, but it
+                                  uses a different default value if the parameter is omitted. See below for details.)
+             * resetOnError       If true, the service object will be recreated if an internal error occurs. An internal error occurs when
+                                  the service throws an exception that is not related to HTTP, authentication, or the ASP.NET request
+                                  lifecycle (i.e. not HttpException, UnauthorizedAccessException, or ThreadAbortException, or a derived
+                                  class). If false, the service object will not be recreated, and only one service object will be used for
+                                  the lifetime of the web application. The default is true, but you may want to change it to false if the
+                                  service object cannot function when multiple instances of it exist simultaneously, although a better
+                                  solution would be to fix the service so that it does not throw any unexpected exceptions.
+             * serveRootOptions   If the service is enabled and this parameter is true, the service will be allowed to serve OPTIONS
+                                  requests to the root of the server and to the "*" URL. This option is provided as a workaround for
+                                  WebDAV clients that incorrectly submit OPTIONS requests to the root of the server. (Microsoft Office
+                                  and Windows Explorer misbehave in this way.) Using this option is not necessary if the 'match' attribute
+                                  is such that the service would serve requests to the root anyway. If this option is enabled, the service
+                                  must be prepared to handle URLs outside its scope when servicing OPTIONS requests. The default is false.
+             * <other>   Attributes not listed above will be collected and passed to the AdamMil.WebDAV.Server.IWebDAVService instance as
+                         parameters if it has a public constructor that accepts an AdamMil.WebDAV.Server.Configuration.ParameterCollection.
+                         (The attributes listed above will also be available from the ParameterCollection.) Be aware that attribute names
+                         are case-sensitive, so if you specify an attribute named "Match" it will be interpreted as a custom attribute and
+                         not the required "match" attribute.
+             The built-in WebDAV service types are:
+             * AdamMil.WebDAV.Server.Services.FileSystemService - Serves files from the filesystem. Be aware that the service does not
+               refuse requests based on the path, extension, etc. so it will allow users to access files such as web.config if the users
+               are granted access by the filesystem. If you don't want this to happen, either use filesystem permissions to deny them
+               access or specify an authorization filter to disallow certain requests. The service supports the following configuration
+               attributes:
+               o allowInfinitePropFind - Specifies whether the service allows infinite-depth PROPFIND queries. This may be disabled if
+                                         clients can't be trusted to use them responsibly. The default is true.
+               o fsRoot - Specifies the root within the filesystem from which files will be served. Effectively, this maps the service
+                          root to the given filesystem root. If empty or omitted, all files on all drives will be served. If you're using
+                          a version of .NET before 4.0 for the site, then you should be aware that ASP.NET will restart the web
+                          application whenever a directory is deleted anywhere within the web site. This means that writable filesystem
+                          services attached to directories within the web site may cause application restarts whenever a user deletes a
+                          directory over WebDAV. If users might do this regularly, you might want to run the web application on .NET 4+,
+                          but even on .NET 4+, ASP.NET may still sometimes restart the application based on changes to the filesystem
+                          that occur within the web site directory. Therefore, it may be best to only serve files outside of the ASP.NET
+                          web site directory, unless you don't mind the restarts.
+               o caseSensitive - Boolean. Specifies whether the file system service performs case-sensitive path matches against the file
+                                 system. The default depends on the operating system and/or file system, but is generally true for
+                                 Unix-like systems and false for Windows and Mac OS X.
+               o writable - Boolean. Determines whether the DAV service allows the creation, deletion, and modification of files and
+                            directories. The default is false.
+             Additionally, there are example services in the Examples directory of the WebDAV server distribution that you may compile and
+             adapt for your own use.
+        -->
+        <add match="https://www.example.com/webdav/help/" enabled="false" /> <!-- provide a non-WebDAV subtree within the WebDAV space -->
+        <add match="https://www.example.com/webdav/" enabled="true"
+             type="YourWebDAV.ServiceProvider, YourWebDAV, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0123456789abcdef"
+             param1="value1" param2="value2"> <!-- param1 and param2 are passed to YourWebDAV.ServiceProvider as parameters -->
+          <!-- The 'authorization' collection defines authorization filters in addition to the authorization built into individual WebDAV
+                services and resources. This allows additional authorization to be layered on top of an existing WebDAV service provider in
+                order to deny access to resources that would otherwise be accessible. A filter cannot grant access to resources that are
+                otherwise inaccessible. Authorization entries have the following attributes:
+                * type      The full type name of a class that implements the AdamMil.WebDAV.Server.IAuthorizationFilter interface. The class
+                            must either have a public default constructor or a constructor that accepts an
+                            AdamMil.WebDAV.Server.Configuration.ParameterCollection (allowing additional configuration parameters to be
+                            processed by the filter). This attribute is required.
+                * <other>   Attributes not listed above will be collected and passed to the AdamMil.WebDAV.Server.IAuthorizationFilter instance
+                            if it has a public constructor that accepts an AdamMil.WebDAV.Server.Configuration.ParameterCollection.
+                            Be aware that attribute names are case-sensitive, so if you specify an attribute named "Type" it will be
+                            interpreted as a custom attribute and not the required "type" attribute.
+          -->
+          <authorization>
+            <add type="MyWebDAV.AuthFilter, MyWebDAV, Version=1.0.0.0, Culture=neutral, PublicKeyToken=fedcba9876543210" />
+          </authorization>
+          <!-- The 'davLockManager' element defines a lock manager for this particular location, overriding the global default. For
+               documentation, see the 'davLockManager' element above.
+          -->
+          <davLockManager type="AdamMil.WebDAV.Server.FileLockManager, AdamMil.WebDAV.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=fc73e8d20ddf3c62"
+                          lockFile="D:\data\webdav\foolocks" />
+          <!-- The 'propertyStore' element defines a property store for this particular location, overriding the global default. For
+               documentation, see the 'propertyStore' element above.
+          -->
+          <propertyStore type="AdamMil.WebDAV.Server.FilePropertyStore, AdamMil.WebDAV.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=fc73e8d20ddf3c62"
+                         propertyFile="D:\data\webdav\fooprops" />
+        </add>
+      </locations>
+    </server>
+  </AdamMil.WebDAV>
+</configuration>
