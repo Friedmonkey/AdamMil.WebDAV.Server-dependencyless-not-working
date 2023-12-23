@@ -65,7 +65,7 @@ static class BinaryReaderWriterExtensions
         case ValueType.Null: value = null; break;
         case ValueType.SByte: value = reader.ReadSByte(); break;
         case ValueType.Single: value = reader.ReadSingle(); break;
-        case ValueType.String: value = reader.ReadStringWithLength(); break;
+        case ValueType.String: value = reader.ReadNullableString(); break;
         case ValueType.True: value = true; break;
         case ValueType.UInt16: value = reader.ReadUInt16(); break;
         case ValueType.UInt32: value = reader.ReadEncodedUInt32(); break;
@@ -77,7 +77,7 @@ static class BinaryReaderWriterExtensions
           value = new XmlDuration(Math.Abs(months), (long)reader.ReadEncodedUInt64(), months < 0);
           break;
         }
-        case ValueType.XmlQualifiedName: value = new XmlQualifiedName(reader.ReadStringWithLength(), reader.ReadStringWithLength()); break;
+        case ValueType.XmlQualifiedName: value = new XmlQualifiedName(reader.ReadNullableString(), reader.ReadNullableString()); break;
         default: throw new InvalidDataException("Unrecognized type: " + type.ToString());
       }
     }
@@ -129,7 +129,7 @@ static class BinaryReaderWriterExtensions
         case ValueType.Int64: value = reader.ReadEncodedInt64s(length); break;
         case ValueType.SByte: value = reader.ReadSBytes(length); break;
         case ValueType.Single: value = reader.ReadSingles(length); break;
-        case ValueType.String: value = reader.ReadStringsWithLengths(length); break;
+        case ValueType.String: value = reader.ReadNullableStrings(length); break;
         case ValueType.TimeSpan:
         {
           TimeSpan[] array = new TimeSpan[length];
@@ -156,8 +156,8 @@ static class BinaryReaderWriterExtensions
           XmlQualifiedName[] array = new XmlQualifiedName[length];
           for(int i=0; i<array.Length; i++)
           {
-            string localName = reader.ReadStringWithLength();
-            if(localName != null) array[i] = new XmlQualifiedName(localName, reader.ReadStringWithLength());
+            string localName = reader.ReadNullableString();
+            if(localName != null) array[i] = new XmlQualifiedName(localName, reader.ReadNullableString());
           }
           value = array;
           break;
@@ -234,7 +234,7 @@ static class BinaryReaderWriterExtensions
           break;
         case TypeCode.String:
           writer.Write((byte)ValueType.String);
-          writer.WriteStringWithLength((string)value);
+          writer.WriteNullableString((string)value);
           break;
         case TypeCode.UInt16:
           writer.Write((byte)ValueType.UInt16);
@@ -279,8 +279,8 @@ static class BinaryReaderWriterExtensions
           {
             XmlQualifiedName name = (XmlQualifiedName)value;
             writer.Write((byte)ValueType.XmlQualifiedName);
-            writer.WriteStringWithLength(name.Name);
-            writer.WriteStringWithLength(name.Namespace);
+            writer.WriteNullableString(name.Name);
+            writer.WriteNullableString(name.Namespace);
           }
           else
           {
@@ -370,7 +370,7 @@ static class BinaryReaderWriterExtensions
         case TypeCode.String:
           writer.Write((byte)(ValueType.String | ValueType.IsArray));
           writer.WriteEncoded((uint)array.Length);
-          foreach(string str in (string[])value) writer.WriteStringWithLength(str);
+          foreach(string str in (string[])value) writer.WriteNullableString(str);
           break;
         case TypeCode.UInt16:
           writer.Write((byte)(ValueType.UInt16 | ValueType.IsArray));
@@ -430,12 +430,12 @@ static class BinaryReaderWriterExtensions
             {
               if(name == null)
               {
-                writer.WriteStringWithLength(null);
+                writer.WriteNullableString(null);
               }
               else
               {
-                writer.WriteStringWithLength(name.Name);
-                writer.WriteStringWithLength(name.Namespace);
+                writer.WriteNullableString(name.Name);
+                writer.WriteNullableString(name.Namespace);
               }
             }
           }

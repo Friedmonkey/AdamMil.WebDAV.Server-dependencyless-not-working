@@ -103,12 +103,12 @@ public sealed class ActiveLock : IElementValue
 
     CreationTime = reader.ReadDateTime();
     if(reader.ReadBoolean()) ExpirationTime = reader.ReadDateTime();
-    Path        = reader.ReadStringWithLength();
+    Path        = reader.ReadNullableString();
     Recursive   = reader.ReadBoolean();
     Timeout     = reader.ReadEncodedUInt32();
-    Token       = reader.ReadStringWithLength();
+    Token       = reader.ReadNullableString();
     Type        = LockType.Load(reader);
-    OwnerId     = reader.ReadStringWithLength();
+    OwnerId     = reader.ReadNullableString();
     owner       = ReadXmlData(reader);
     serverData  = ReadXmlData(reader);
   }
@@ -190,12 +190,12 @@ public sealed class ActiveLock : IElementValue
     writer.Write(CreationTime);
     writer.Write(ExpirationTime.HasValue);
     if(ExpirationTime.HasValue) writer.Write(ExpirationTime.Value);
-    writer.WriteStringWithLength(Path);
+    writer.WriteNullableString(Path);
     writer.Write(Recursive);
     writer.WriteEncoded(Timeout);
-    writer.WriteStringWithLength(Token);
+    writer.WriteNullableString(Token);
     Type.Save(writer);
-    writer.WriteStringWithLength(OwnerId);
+    writer.WriteNullableString(OwnerId);
     WriteXmlData(writer, owner);
     WriteXmlData(writer, serverData);
   }
@@ -271,7 +271,7 @@ public sealed class ActiveLock : IElementValue
     if(reader.ReadBoolean())
     {
       XmlDocument xml = new XmlDocument();
-      xml.LoadXml(reader.ReadStringWithLength());
+      xml.LoadXml(reader.ReadNullableString());
       el = xml.DocumentElement;
     }
     return el;
@@ -284,7 +284,7 @@ public sealed class ActiveLock : IElementValue
     {
       StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
       data.OwnerDocument.Save(sw);
-      writer.WriteStringWithLength(sw.ToString());
+      writer.WriteNullableString(sw.ToString());
     }
   }
 }
@@ -422,8 +422,8 @@ public sealed class LockType : IElementValue
     writer.Write((byte)type);
     if(type == 0)
     {
-      writer.WriteStringWithLength(Type.Name);
-      writer.WriteStringWithLength(Type.Namespace);
+      writer.WriteNullableString(Type.Name);
+      writer.WriteNullableString(Type.Namespace);
       writer.Write(Exclusive);
     }
   }
@@ -432,7 +432,7 @@ public sealed class LockType : IElementValue
   {
     switch(reader.ReadByte())
     {
-      case 0: return new LockType(new XmlQualifiedName(reader.ReadStringWithLength(), reader.ReadStringWithLength()),
+      case 0: return new LockType(new XmlQualifiedName(reader.ReadNullableString(), reader.ReadNullableString()),
                                   reader.ReadBoolean());
       case 1: return ExclusiveWrite;
       case 2: return SharedWrite;

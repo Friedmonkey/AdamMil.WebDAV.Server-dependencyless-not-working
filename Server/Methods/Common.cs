@@ -405,7 +405,8 @@ public abstract class WebDAVRequest
           {
             deadTokens = new List<string>();
           }
-          deadTokens.AddRange(token);
+          //deadTokens.AddRange(token);
+          deadTokens.Add(token);
         }
       }
       if(deadTokens != null) lockTokens.ExceptWith(deadTokens);

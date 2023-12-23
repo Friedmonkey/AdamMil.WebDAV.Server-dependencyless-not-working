@@ -69,6 +69,7 @@
     <Compile Include="Helpers\Caching.cs" />
     <Compile Include="Helpers\Comparisons.cs" />
     <Compile Include="Helpers\DateUtility.cs" />
+    <Compile Include="Helpers\DictionaryFix.cs" />
     <Compile Include="Helpers\EightBitEncoding.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\Interfaces.cs" />

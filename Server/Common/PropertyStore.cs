@@ -115,15 +115,15 @@ public sealed class XmlProperty
     if(reader.ReadBoolean())
     {
       XmlDocument doc = new XmlDocument();
-      doc.LoadXml(reader.ReadStringWithLength());
+      doc.LoadXml(reader.ReadNullableString());
       InitializeFromElement(doc.DocumentElement, null);
     }
     else
     {
-      Language = reader.ReadStringWithLength();
-      string typeName = reader.ReadStringWithLength();
-      if(typeName != null) Type = new XmlQualifiedName(typeName, reader.ReadStringWithLength());
-      Name  = new XmlQualifiedName(reader.ReadStringWithLength(), reader.ReadStringWithLength());
+      Language = reader.ReadNullableString();
+      string typeName = reader.ReadNullableString();
+      if(typeName != null) Type = new XmlQualifiedName(typeName, reader.ReadNullableString());
+      Name  = new XmlQualifiedName(reader.ReadNullableString(), reader.ReadNullableString());
       Value = reader.ReadValueWithType();
     }
   }
@@ -181,22 +181,22 @@ public sealed class XmlProperty
     {
       StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
       Element.OwnerDocument.Save(sw);
-      writer.WriteStringWithLength(sw.ToString());
+      writer.WriteNullableString(sw.ToString());
     }
     else
     {
-      writer.WriteStringWithLength(Language);
+      writer.WriteNullableString(Language);
       if(Type == null)
       {
-        writer.WriteStringWithLength(null);
+        writer.WriteNullableString(null);
       }
       else
       {
-        writer.WriteStringWithLength(Type.Name);
-        writer.WriteStringWithLength(Type.Namespace);
+        writer.WriteNullableString(Type.Name);
+        writer.WriteNullableString(Type.Namespace);
       }
-      writer.WriteStringWithLength(Name.Name);
-      writer.WriteStringWithLength(Name.Namespace);
+      writer.WriteNullableString(Name.Name);
+      writer.WriteNullableString(Name.Namespace);
       writer.WriteValueWithType(Value);
     }
   }
@@ -665,7 +665,7 @@ public class FilePropertyStore : PropertyStore
                 var resources = new MultiValuedDictionary<string, XmlProperty>();
                 while(resourceCount-- != 0)
                 {
-                  string canonicalPath = reader.ReadStringWithLength();
+                  string canonicalPath = reader.ReadNullableString();
                   int propertyCount = (int)reader.ReadEncodedUInt32();
                   List<XmlProperty> properties = new List<XmlProperty>(propertyCount);
                   do properties.Add(new XmlProperty(reader)); while(--propertyCount != 0);
@@ -721,7 +721,7 @@ public class FilePropertyStore : PropertyStore
             writer.Write(resources.Count);
             foreach(KeyValuePair<string, List<XmlProperty>> pair in resources)
             {
-              writer.WriteStringWithLength(pair.Key);
+              writer.WriteNullableString(pair.Key);
               writer.WriteEncoded((uint)pair.Value.Count);
               foreach(XmlProperty property in pair.Value) property.Save(writer);
             }

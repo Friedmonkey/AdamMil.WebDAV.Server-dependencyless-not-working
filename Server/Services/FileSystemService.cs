@@ -27,6 +27,7 @@ using AdamMil.IO;
 using AdamMil.Utilities;
 using AdamMil.Web;
 using AdamMil.WebDAV.Server.Configuration;
+using AdamMil.Collections;
 
 // TODO: authorization against the request URI (i.e. implement ShouldDenyAccess)?
 // TODO: more cleanup and refactoring...
